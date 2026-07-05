@@ -1,0 +1,26 @@
+name: dang-bai
+
+on:
+  repository_dispatch:
+    types: [dang-bai]
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Đăng bài (Hình ảnh -> feed, Video -> Reel)
+        env:
+          LARK_APP_SECRET: ${{ secrets.LARK_APP_SECRET }}
+          LARK_APP_ID: ${{ github.event.client_payload.lark_app_id || vars.LARK_APP_ID }}
+          LARK_APP_TOKEN: ${{ github.event.client_payload.base_token || vars.LARK_BASE_ID }}
+          LARK_TABLE_ID: ${{ github.event.client_payload.table_id || vars.TABLE_DANGBAI }}
+          PAGES_TABLE_ID: ${{ github.event.client_payload.pages_table_id || vars.TABLE_PAGES }}
+          RESPECT_SCHEDULE: ${{ github.event.client_payload.respect_schedule }}
+          RECORD_ID: ${{ github.event.client_payload.record_id }}
+          REEL_CHUNK_MB: ${{ github.event.client_payload.reel_chunk_mb }}
+        run: node scripts/post-feed-api.js ${{ github.event.client_payload.mode }}
